@@ -1,0 +1,38 @@
+version: "3.3"
+services:
+
+  nginx:
+    container_name: nginx
+    image: nginx:1.15-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./data:/etc/nginx
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    network_mode: "host"
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+  grafana-hook:
+    container_name: grafana-hook
+    image: grafana-hook
+    build: .
+    ports:
+      - '8080:8080'
+    environment:
+      TOKEN: '***'
+      API_URL: '***'
+      API_PREFIX: /grafana/events
+      GRAFANA_URL: grafana.vkoro.ru
+      GF_LOGIN: admin
+      GF_PASSWORD: Aa568217
+    depends_on:
+      - nginx
