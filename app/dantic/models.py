@@ -171,7 +171,7 @@ class OldEvent(EnumedBaseModel):
     dashboardId: int
     panelId: int
     tags: Union[Dict[Any, Any], Dict]
-    ruleUrl: AnyUrl
+    ruleUrl: str
     imageUrl: Optional[AnyUrl]
     message: Optional[str]
 
